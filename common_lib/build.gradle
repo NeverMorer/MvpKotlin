@@ -37,4 +37,8 @@ dependencies {
     api "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycleVersion"
     api "androidx.navigation:navigation-fragment-ktx:$rootProject.navgationVersion"
     api "androidx.navigation:navigation-ui-ktx:$rootProject.navgationVersion"
+    api "androidx.paging:paging-runtime-ktx:$rootProject.pagingVersion"
+
+    //third lib
+    api 'com.jakewharton.timber:timber:4.7.1'
 }

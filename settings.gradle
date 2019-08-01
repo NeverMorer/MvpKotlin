@@ -1,1 +1,1 @@
-include ':app', ':commonlib'
+include ':app', ':common_lib', ':navigation_demo'
