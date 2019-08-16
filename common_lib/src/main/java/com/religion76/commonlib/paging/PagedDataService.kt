@@ -1,10 +1,7 @@
 package com.religion76.commonlib.paging
 
-import android.util.SparseArray
 import androidx.annotation.CallSuper
 import androidx.annotation.WorkerThread
-import androidx.core.util.forEach
-import androidx.core.util.isEmpty
 import com.religion76.commonlib.paging.base.DataService
 
 /**
@@ -12,19 +9,25 @@ import com.religion76.commonlib.paging.base.DataService
  */
 abstract class PagedDataService<T> : DataService<T> {
 
-    protected val pages = SparseArray<List<T>>()
+    companion object{
+        const val DEFAULT_TOP_KEY = "first"
+    }
 
-    protected fun getCachedData(endPage: Int): List<T> {
+    protected val pages = LinkedHashMap<String, List<T>>()
+
+    protected fun getCachedData(endPageKey: String?): List<T> {
         val cachedData = mutableListOf<T>()
-        for (i in 1..endPage) {
-            pages.get(i)?.let { cachedData.addAll(it) }
+
+        pages.keys.forEach {
+            pages.get(it)?.let { cachedData.addAll(it) }
         }
+
         return cachedData
     }
 
     @WorkerThread
-    fun updateDataCache(page: Int, data: List<T>) {
-        pages.put(page, data)
+    fun updateDataCache(key: String, data: List<T>) {
+        pages[key] = data
     }
 
     fun isPagesEmpty(): Boolean {
@@ -32,8 +35,8 @@ abstract class PagedDataService<T> : DataService<T> {
             return true
         }
 
-        pages.forEach { key, page ->
-            if (page.isNotEmpty()) {
+        pages.keys.forEach {
+            if (pages[it]?.isNotEmpty() == false) {
                 return false
             }
         }

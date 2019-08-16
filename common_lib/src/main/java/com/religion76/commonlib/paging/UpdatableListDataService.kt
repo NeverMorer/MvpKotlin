@@ -8,16 +8,17 @@ abstract class UpdatableListDataService<T>(override val pageSize: Int = 20) : Si
     @WorkerThread
     fun addItem(data: T, position: Int): Boolean {
         synchronized(this) {
+
             var startSize = 0
-            for (i in 1 .. pages.size()) {
-                pages.get(i)?.let { page ->
+            pages.keys.forEach {
+                pages.get(it)?.let { page ->
                     val endSize = startSize + page.size
                     if (position <= endSize) {
                         val offset = position - startSize
                         val newPage = mutableListOf<T>()
                         newPage.addAll(page)
                         newPage.add(offset, data)
-                        updateDataCache(i, newPage)
+                        updateDataCache(it, newPage)
                         return true
                     }
                     startSize += page.size
@@ -33,7 +34,7 @@ abstract class UpdatableListDataService<T>(override val pageSize: Int = 20) : Si
         synchronized(this) {
             if (isPagesEmpty()) return false
 
-            for (i in 1 .. pages.size()) {
+            pages.keys.forEach { i ->
                 pages.get(i)?.let { page ->
                     page.forEachIndexed { index, oldItem ->
                         if (block.invoke(oldItem)) {
@@ -59,7 +60,7 @@ abstract class UpdatableListDataService<T>(override val pageSize: Int = 20) : Si
 
             var result = false
 
-            for (i in 1 .. pages.size()) {
+            pages.keys.forEach { i ->
                 pages.get(i)?.let { page ->
                     if (page.find(block) != null) {
                         val newPage = mutableListOf<T>()

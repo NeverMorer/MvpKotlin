@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools" android:id="@+id/home" app:startDestination="@id/homeFragment">
+
+    <fragment android:id="@+id/homeFragment" android:name="com.religion76.mvpkotlin.ui.HomeFragment"
+              android:label="HomeFragment">
+        <action android:id="@+id/action_homeFragment_to_searchFragment" app:destination="@id/searchReddit"
+                app:enterAnim="@anim/fragment_fade_enter" app:exitAnim="@anim/fragment_fade_exit"
+                app:popEnterAnim="@anim/fragment_fade_enter" app:popExitAnim="@anim/fragment_fade_exit"/>
+    </fragment>
+    <fragment android:id="@+id/searchReddit" android:name="com.religion76.mvpkotlin.ui.search.SearchReddit"
+              android:label="searchReddit">
+        <action android:id="@+id/action_searchReddit_to_searchRedditResult" app:destination="@id/searchRedditResult"
+                app:enterAnim="@anim/fragment_fade_enter" app:exitAnim="@anim/fragment_fade_exit"
+                app:popEnterAnim="@anim/fragment_fade_enter" app:popExitAnim="@anim/fragment_close_exit"
+                app:popUpTo="@+id/homeFragment" />
+    </fragment>
+    <fragment android:id="@+id/searchRedditResult" android:name="com.religion76.mvpkotlin.ui.search.SearchRedditResult"
+              android:label="SearchRedditResult">
+        <argument android:name="query" app:argType="string"/>
+        <action android:id="@+id/action_searchRedditResult_to_homeFragment" app:destination="@id/homeFragment"/>
+    </fragment>
+</navigation>

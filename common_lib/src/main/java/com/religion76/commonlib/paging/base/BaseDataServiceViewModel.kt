@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations.map
 import androidx.lifecycle.Transformations.switchMap
 import androidx.lifecycle.ViewModel
-import com.religion76.commonlib.paging.ServiceLocator
 import com.religion76.commonlib.paging.SimpleRepository
 
 abstract class BaseDataServiceViewModel<T> : ViewModel() {
@@ -28,6 +27,7 @@ abstract class BaseDataServiceViewModel<T> : ViewModel() {
     fun getService(): DataService<T>? = service.value
 
     fun setService(dataService: DataService<T>) {
+        service.value?.clear()
         service.postValue(dataService)
     }
 
@@ -48,5 +48,10 @@ abstract class BaseDataServiceViewModel<T> : ViewModel() {
         isZeroItems.postValue(false)
         reset()
         refresh()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        service.value?.clear()
     }
 }

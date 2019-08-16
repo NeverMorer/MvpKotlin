@@ -1,41 +1,46 @@
 package com.religion76.mvpkotlin
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import com.religion76.mvpkotlin.base.FragmentPack
-import com.religion76.mvpkotlin.base.MultiFragmentActivity
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
+import com.religion76.mvpkotlin.utils.setupWithNavController
+import com.religion76.mvpkotlin.utils.visibleBy
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : MultiFragmentActivity() {
+class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        bottomNavi.setOnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.menu_home -> {
-                    showHideFragments(0)
-                    true
-                }
-                R.id.menu_discovery -> {
-                    showHideFragments(1)
-                    true
-                }
-                else -> {
-                    false
-                }
-            }
+        if (savedInstanceState == null) {
+            initNavigation()
         }
     }
 
-    override val fragmentPacks: Array<FragmentPack<out Fragment>> =
-        arrayOf(
-            FragmentPack(HomeFragment::class.java) { HomeFragment() },
-            FragmentPack(DiscoveryFragment::class.java) { DiscoveryFragment() })
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+        initNavigation()
+    }
 
-    override val initShowIndex: Int = 0
+    private fun initNavigation() {
+        /**
+         * temporary solution for multiple backstacks
+         * track -> https://issuetracker.google.com/issues/80029773#comment25
+         */
+        val navControllerLiveData = bottomNavi.setupWithNavController(
+            listOf(R.navigation.navi_home, R.navigation.navi_discovery),
+            supportFragmentManager,
+            R.id.containerFragments,
+            intent
+        )
 
-    override fun getFragmentContainerId(): Int = R.id.containerFragments
-
+        navControllerLiveData.observe(this, Observer {
+            if (it.currentDestination?.id == R.id.homeFragment) {
+                it.addOnDestinationChangedListener { controller, destination, arguments ->
+                    bottomNavi.visibleBy { destination.id == R.id.homeFragment }
+                }
+            }
+        })
+    }
 }

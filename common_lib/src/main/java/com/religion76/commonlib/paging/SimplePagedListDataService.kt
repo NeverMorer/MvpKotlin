@@ -7,8 +7,9 @@ abstract class SimplePagedListDataService<T>(override val pageSize: Int = 20) : 
 
 
     private val sessionId = AtomicInteger(0)
-    private var currentPage = 0
-    private var hasNextPage = true
+
+    private var currentPageKey: String? = null
+    private var nextPageKey: String? = null
 
     abstract fun onLoadInitialData(
         onSuccess: (data: ListResult<out T>) -> Unit,
@@ -16,7 +17,7 @@ abstract class SimplePagedListDataService<T>(override val pageSize: Int = 20) : 
     )
 
     abstract fun onLoadAfterData(
-        page: Int,
+        key: String,
         pageSize: Int,
         onSuccess: (data: ListResult<out T>) -> Unit,
         onError: (errorMessage: String) -> Unit
@@ -30,23 +31,18 @@ abstract class SimplePagedListDataService<T>(override val pageSize: Int = 20) : 
         updatePageSession()
 
         if (!isPagesEmpty()) {
-            onSuccess.invoke(getCachedData(currentPage), if (hasNextPage) (currentPage + 1).toString() else null)
+            onSuccess.invoke(getCachedData(currentPageKey), nextPageKey)
             return
         }
 
         onLoadInitialData({ result ->
             val data = mutableListOf<T>()
             data.addAll(result.data)
-            val hasMore = if (result.hasMore != null) {
-                result.hasMore!!
-            } else {
-                data.size >= pageSize - DataConstants.HAS_MORE_OFFSET
-            }
-            val nextKey = if (hasMore) "2" else null
-            updateDataCache(1, data)
+            nextPageKey = result.nextKey
+            updateDataCache(DEFAULT_TOP_KEY, data)
 
-            currentPage = 1
-            onSuccess.invoke(data, nextKey)
+            currentPageKey = DEFAULT_TOP_KEY
+            onSuccess.invoke(data, nextPageKey)
 
         }, {
             onError.invoke(it)
@@ -60,35 +56,27 @@ abstract class SimplePagedListDataService<T>(override val pageSize: Int = 20) : 
         onError: (errorMessage: String) -> Unit
     ) {
 
-        val page = key.toIntOrNull() ?: return
 
         val currentSessionId = getCurrentSessionId()
 
-        onLoadAfterData(page, pageSize, {
+        onLoadAfterData(key, pageSize, {
 
             if (!checkSessionValidated(currentSessionId)) return@onLoadAfterData
 
             val data = it.data
-            val hasMore = if (it.hasMore != null) {
-                it.hasMore!!
-            } else {
-                data.size >= pageSize - DataConstants.HAS_MORE_OFFSET
-            }
 
-            currentPage = page
-            hasNextPage = hasMore
+            currentPageKey = key
+            nextPageKey = it.nextKey
 
-            val nextKey = if (hasMore) (page + 1) else null
-
-            updateDataCache(page, data)
-            onSuccess.invoke(data, nextKey.toString())
+            updateDataCache(key, data)
+            onSuccess.invoke(data, nextPageKey)
         }, {
             onError.invoke(it)
         })
     }
 
     fun getCachedData(): List<T> {
-        return getCachedData(currentPage)
+        return getCachedData(currentPageKey)
     }
 
     private fun updatePageSession(): Int {
@@ -104,8 +92,8 @@ abstract class SimplePagedListDataService<T>(override val pageSize: Int = 20) : 
 
     override fun reset() {
         super.reset()
-        currentPage = 0
-        hasNextPage = true
+        currentPageKey = null
+        nextPageKey = null
     }
 
 }

@@ -14,5 +14,7 @@ interface DataService<T> {
 
     fun reset()
 
+    fun clear()
+
     val pageSize: Int
 }

@@ -36,13 +36,11 @@ class SimpleDataSource<T>(private val service: DataService<T>) : BasePagedDataSo
         loadingState.postValue(NetworkState.Loaded)
         errorMessage.postValue(null)
 
-        val key = params.key.toIntOrNull() ?: return
-
         loadingState.postValue(NetworkState.Loading)
         errorMessage.postValue(null)
 
 
-        service.loadAfter(key.toString(), { data, nextKey ->
+        service.loadAfter(params.key, { data, nextKey ->
             retry = null
             loadingState.postValue(NetworkState.Loaded)
             errorMessage.postValue(null)

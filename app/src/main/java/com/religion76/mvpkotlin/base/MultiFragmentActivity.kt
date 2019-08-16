@@ -1,21 +1,15 @@
 package com.religion76.mvpkotlin.base
 
 import android.os.Bundle
-import androidx.annotation.IdRes
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.commit
-import timber.log.Timber
 
 /**
  * Created by SunChao
  * on 2019-08-09.
  */
-abstract class MultiFragmentActivity : FragmentActivity() {
+abstract class MultiFragmentActivity : FragmentActivity(), MultiFragmentContainer {
 
-    private var currentShowFragmentIndex = -1
-
-    private var fragments: Array<Fragment>? = null
+    private lateinit var multiFragmentDelegate: MultiFragmentDelegate
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -23,56 +17,13 @@ abstract class MultiFragmentActivity : FragmentActivity() {
     }
 
     private fun initFragments() {
-        if (isNeedReInit()) {
-            Timber.d("initFragments")
-            supportFragmentManager.commit {
-                val newFragments = mutableListOf<Fragment>()
-                fragmentPacks.forEachIndexed { index, fragmentPack ->
-                    val newFragment = fragmentPack.producer.invoke()
-                    addWithTag(getFragmentContainerId(), newFragment)
-                    newFragments.add(newFragment)
-                    if (index != initShowIndex) {
-                        hide(newFragment)
-                    }
-                }
-
-                fragments = newFragments.toTypedArray()
-                currentShowFragmentIndex = initShowIndex
-            }
-        } else {
-            Timber.d("reloadFragments")
-            fragments = supportFragmentManager.fragments.toTypedArray()
-            showHideFragments(initShowIndex)
-        }
+        multiFragmentDelegate =
+            MultiFragmentDelegateImpl(getFragmentContainerId(), supportFragmentManager, initShowIndex)
+        multiFragmentDelegate.initFragments(fragmentPacks)
     }
 
-    private fun isNeedReInit(): Boolean {
-        return fragmentPacks.isNotEmpty() && supportFragmentManager.findByFragmentClass(fragmentPacks[0].clazz) == null
+    override fun showHideFragments(showIndex: Int) {
+        multiFragmentDelegate.showHideFragments(showIndex)
     }
 
-    protected fun showHideFragments(showIndex: Int) {
-        if (showIndex != currentShowFragmentIndex && fragments?.isNotEmpty() == true) {
-            if (currentShowFragmentIndex >= 0) {
-                supportFragmentManager.commit {
-                    show(fragments!![showIndex])
-                    hide(fragments!![currentShowFragmentIndex])
-                }
-            } else {
-                supportFragmentManager.commit {
-                    fragments?.forEachIndexed { index, fragment ->
-                        if (index == showIndex) show(fragment) else hide(fragment)
-                    }
-                }
-            }
-
-            currentShowFragmentIndex = showIndex
-        }
-    }
-
-    abstract val fragmentPacks: Array<FragmentPack<out Fragment>>
-
-    abstract val initShowIndex: Int
-
-    @IdRes
-    abstract fun getFragmentContainerId(): Int
 }
