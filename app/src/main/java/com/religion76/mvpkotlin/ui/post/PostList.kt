@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.religion76.commonlib.paging.base.DataService
 import com.religion76.commonlib.paging.base.NetworkState
@@ -21,8 +23,7 @@ import timber.log.Timber
 open class PostList(private var dataService: DataService<RedditPostResult>? = null) : LazyFragment() {
 
     private val postViewModel: PostViewModel by viewModel()
-    private val adapter: RedditPostAdapter =
-        RedditPostAdapter()
+    private val adapter: RedditPostAdapter = RedditPostAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_post_list, container, false)
@@ -30,8 +31,16 @@ open class PostList(private var dataService: DataService<RedditPostResult>? = nu
 
     override fun onLazyInit() {
 
+        val ctx = context ?: return
+
         rvPostList.setHasFixedSize(true)
         rvPostList.adapter = adapter
+
+        ContextCompat.getDrawable(ctx, R.drawable.shape_divider_post_list)?.let {
+            val divider = DividerItemDecoration(ctx, DividerItemDecoration.VERTICAL)
+            divider.setDrawable(it)
+            rvPostList.addItemDecoration(divider)
+        }
 
         srlPostList.setColorSchemeResources(R.color.colorAccent)
         srlPostList.setOnRefreshListener {
@@ -46,12 +55,9 @@ open class PostList(private var dataService: DataService<RedditPostResult>? = nu
             adapter.submitList(it)
         })
 
-
         if (postViewModel.getService() == null && dataService != null) {
             postViewModel.setService(dataService!!)
         }
-
-        Timber.d("rvPostList: ${rvPostList.hashCode()}")
     }
 
     fun setDataService(dataService: DataService<RedditPostResult>) {

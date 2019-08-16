@@ -14,6 +14,7 @@ import com.religion76.mvpkotlin.utils.inflateChild
 import com.religion76.mvpkotlin.utils.loadRedditPostImage
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_post.*
+import timber.log.Timber
 
 /**
  * Created by SunChao on 2019-08-13.
@@ -49,6 +50,7 @@ class RedditPostAdapter : PagedListAdapter<RedditPostResult, RedditPostAdapter.P
             tvPostInfo.text = String.format(StringUtils.getString(R.string.post_info_format), post.data.author)
             tvContent.text = post.data.title
             post.data.preview?.let { sdvContent.loadRedditPostImage(it) }
+
             itemView.setOnClickListener {
                 post.data.url?.let { url ->
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))

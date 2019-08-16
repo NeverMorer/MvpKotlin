@@ -42,10 +42,6 @@ class SearchReddit : LazyFragment() {
             s?.toString()?.let { searchViewModel.edit(it) }
         }
 
-//        etSearch.post {
-//            etSearch.showKeyBoard()
-//        }
-
         etSearch.setOnEditorActionListener { v, actionId, event ->
             val entered = etSearch.text?.toString()
             if ((actionId == EditorInfo.IME_ACTION_SEARCH) && (entered?.isNotEmpty() == true)) {
@@ -57,7 +53,7 @@ class SearchReddit : LazyFragment() {
         }
 
         etSearch.post {
-            etSearch.requestFocus()
+            etSearch.showKeyBoard()
         }
     }
 
