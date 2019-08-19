@@ -32,7 +32,6 @@ abstract class LazyFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Timber.d("${javaClass.simpleName} onViewCreated_")
-        isInit = false
     }
 
     override fun onDestroyView() {

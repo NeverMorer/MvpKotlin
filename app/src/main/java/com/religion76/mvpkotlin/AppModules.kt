@@ -1,11 +1,16 @@
 package com.religion76.mvpkotlin
 
+import androidx.room.Room
+import com.religion76.mvpkotlin.data.db.AppDatabase
 import com.religion76.mvpkotlin.reddit.RedditApi
 import com.religion76.mvpkotlin.ui.post.HotPostDataService
 import com.religion76.mvpkotlin.ui.post.PostViewModel
+import com.religion76.mvpkotlin.ui.register.UserRepository
+import com.religion76.mvpkotlin.ui.register.UserViewModel
 import com.religion76.mvpkotlin.ui.search.SearchRedditViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -43,8 +48,22 @@ object AppModules {
             retrofit.create(RedditApi::class.java)
         }
 
+        single<AppDatabase> {
+            Room.databaseBuilder(androidContext(), AppDatabase::class.java, "app_database.db")
+                .build()
+        }
+
         factory {
             HotPostDataService(get())
+        }
+
+        factory {
+            val db: AppDatabase = get(AppDatabase::class.java)
+            UserRepository(db.userDao())
+        }
+
+        viewModel {
+            UserViewModel(get())
         }
 
         viewModel {
