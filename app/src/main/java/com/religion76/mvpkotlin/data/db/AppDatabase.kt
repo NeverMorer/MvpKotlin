@@ -8,7 +8,7 @@ import com.religion76.mvpkotlin.data.model.User
 /**
  * Created by SunChao on 2019-08-19.
  */
-@Database(entities = [User::class], version = 1)
+@Database(entities = [User::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 }

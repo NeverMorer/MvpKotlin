@@ -44,7 +44,7 @@ class UserRepository(private val userDao: UserDao) {
         //mock create
         return try {
             delay(2000)
-            val user = User("1", name)
+            val user = User("1", name, null)
             userDao.insert(user)
             Result.success(user)
         } catch (e: Exception) {

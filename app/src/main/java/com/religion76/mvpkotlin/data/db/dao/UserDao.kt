@@ -18,6 +18,9 @@ interface UserDao {
     suspend fun getUser(): User?
 
     @Query("SELECT * FROM user limit 1")
+    fun getUserForTest(): User?
+
+    @Query("SELECT * FROM user limit 1")
     fun getUserLive(): LiveData<User?>
 
     @Query("DELETE FROM user")

@@ -1,7 +1,10 @@
 package com.religion76.mvpkotlin
 
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.religion76.mvpkotlin.data.db.AppDatabase
+import com.religion76.mvpkotlin.data.db.Migrations
 import com.religion76.mvpkotlin.reddit.RedditApi
 import com.religion76.mvpkotlin.ui.post.HotPostDataService
 import com.religion76.mvpkotlin.ui.post.PostViewModel
@@ -49,7 +52,9 @@ object AppModules {
         }
 
         single<AppDatabase> {
+
             Room.databaseBuilder(androidContext(), AppDatabase::class.java, "app_database.db")
+                .addMigrations(Migrations.MIGRATION_1_2)
                 .build()
         }
 
